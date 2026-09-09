@@ -108,46 +108,63 @@
     </div>
 </section>
 
-<!-- MOTIVATION TITLE & MOTIVATION SECTION -->
 <section class="section section-compact pt-5" id="motivation">
     <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-5">Motivation</h2>
-        
-        <div class="columns is-vcentered">
-            <!-- Left Column: Text -->
-            <div class="column is-6">
-                <div class="content">
-                    <p style="line-height: 1.7;">
-                        Control Barrier Functions certify safety by enforcing $\color{red}{\dot h \geq -\alpha(h)}$ in a QP[cite: 1]. The <span class="hl-blue">Dynamic Parabolic CBF (DPCBF)</span> does this elegantly for dynamic obstacles: it replaces the conservative collision cone with a state-dependent parabola in the line-of-sight (LoS) velocity frame, recovering feasibility in clutter where cone-based methods have none[cite: 1].
-                    </p>
-                    <p style="line-height: 1.7;">
-                        But DPCBF evaluates its Lie derivative assuming the obstacle holds <span class="hl-blue">constant velocity</span>[cite: 1]. If the obstacle accelerates or turns, the true derivative picks up an uncompensated term[cite: 1]:
-                    </p>
-                    <p class="has-text-centered" style="line-height: 2.2;">
-                        $$\color{red}{[\dot h]_{\text{true}} = [\dot h]_{\text{DPCBF}} + \Delta(t)}$$[cite: 1]
-                        $$\Delta(t) = a_{obs}\cos\tilde\theta_{obs} \;+\; v_{obs}\,\omega_{obs}\Big[\,2\lambda\,\tilde v_{rel,y}\cos\tilde\theta_{obs} \;-\; \sin\tilde\theta_{obs}\,\Big]$$[cite: 1]
-                    </p>
-                    <p style="line-height: 1.7;">
-                        When $\Delta(t) < 0$, the CBF condition can be satisfied by the QP while being violated in reality[cite: 1]. There is no infeasibility, no warning &mdash; <span class="hl-blue">the safety guarantee simply fails silently</span>, and the first symptom is a collision[cite: 1]. This repository formalizes that failure mode and fixes it[cite: 1].
-                    </p>
-                </div>
-            </div>
+        <h2 class="title is-3 has-text-centered mb-4">Motivation</h2>
 
-            <!-- Right Column: PDF Figure without viewer toolbar -->
-            <div class="column is-6 has-text-centered">
-                <div class="box p-3" style="background-color: #f9f9f9; border-radius: 8px;">
-                    <div style="width: 100%; height: 450px; overflow: hidden; position: relative;">
-                        <iframe src="static/images/fig_motivation.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH" scrolling="no" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" loading="lazy"></iframe>
-                    </div>
-                    <p class="figure-caption mt-2">
-                        <strong>Figure.</strong> An infeasible multi-robot CBF safety filter provides only a binary flag without revealing the source of the conflict, the agents responsible, or how to resolve it.
-                    </p>
-                </div>
-            </div>
+        <div class="content is-medium">
+            <p style="line-height: 1.75;">
+                Control Barrier Functions (CBFs) provide a powerful mechanism for enforcing
+                safety through online optimization. For a multi-robot system, however,
+                several safety constraints may compete for the limited control authority
+                of different robots, causing the CBF safety filter to become
+                <strong>infeasible</strong>.
+            </p>
+
+            <p style="line-height: 1.75;">
+                The usual outcome is simply a binary signal:
+                <span class="hl-blue"><strong>feasible or infeasible</strong></span>.
+                But infeasibility alone does not answer the questions that matter in
+                practice: <em>Which interaction is responsible?</em>
+                <em>Which robot lacks sufficient control authority?</em>
+                And
+                <em>how should the shared safety constraints be distributed among the robots?</em>
+            </p>
+
+            <p style="line-height: 1.75;">
+                This motivates an <strong>exact feasibility certificate</strong> that
+                separates the <span class="hl-blue">demand imposed by the safety constraints</span>
+                from the <span class="hl-blue">control authority supplied by the actuators</span>.
+                Rather than merely detecting infeasibility, the certificate reveals its
+                source and quantifies how much each agent can contribute.
+            </p>
+
+            <p style="line-height: 1.75;">
+                This perspective turns CBF infeasibility from a failure signal into a
+                <strong>diagnostic and allocation problem</strong>: identify the responsible
+                interaction, determine where additional actuator authority would be useful,
+                and optimally distribute shared constraints so that the worst local
+                feasibility margin is maximized.
+            </p>
         </div>
+
+        <div class="has-text-centered mt-5">
+            <embed
+                src="static/images/fig_motivation.pdf"
+                type="application/pdf"
+                width="100%"
+                height="650px"
+                style="border-radius: 12px;">
+        </div>
+
+        <p class="figure-caption mt-3 has-text-centered">
+            <strong>Why feasibility alone is not enough.</strong>
+            CBF infeasibility is not merely a binary failure: the proposed certificate
+            identifies the source of infeasibility and enables principled responsibility
+            allocation among interacting robots.
+        </p>
     </div>
 </section>
-```[cite: 1]
 
 <!-- HIGHLIGHTED CENTRAL QUESTION CALLOUT -->
 <section class="section py-3">
