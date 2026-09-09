@@ -288,38 +288,15 @@
 </section>
 
 <!-- EXPERIMENTAL EVALUATION -->
-<section class="section section-compact py-6" id="results">
+<section class="section section-compact pt-0">
     <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-4">Experimental Evaluation</h2>
-
-        <div class="result-card mb-4">
-            <h3 class="title is-4 mb-3">Conventional DPCBF Fails Under Obstacle Maneuvers</h3>
-            <img src="static/gifs/demo_compare_13_status.gif" alt="Comparison 1" class="result-gif">
-            <p class="figure-caption mt-3">Conventional DPCBF fails under obstacle maneuvers, whereas <span class="hl-blue">AR-DPCBF variants safely reach the goal</span>.</p>
-        </div>
-
-        <div class="result-card mb-4">
-            <h3 class="title is-4 mb-3">Soft Barrier Relaxation Preserves Feasibility</h3>
-            <img src="static/gifs/demo_compare_softbuf_status.gif" alt="Comparison 2" class="result-gif">
-            <p class="figure-caption mt-3">Hard AR-DPCBF can become overly conservative; proposed soft formulations preserve feasibility.</p>
-        </div>
-        <div class="result-card mb-4">
-            <h3 class="title is-4 mb-3">Buffer's Hubber Penalty Improves Feasibility</h3>
-            <img src="static/gifs/demo_compare_bufonly_status.gif" alt="Comparison 2" class="result-gif">
-            <p class="figure-caption mt-3">Buffer AR-DPCBF preserves the nominal safety constraint while relaxing only the adversarial margin.</p>
-        </div>
-
-
-        <div class="result-card mb-4">
-            <h3 class="title is-4 mb-3">Quantitative Results</h3>
-            <img src="static/images/fig_adversary_sweep_updated.png" alt="Violation and collision rate versus number of adversaries" class="result-figure">
-            <p class="figure-caption mt-3">Barrier-violation rate (a) and collision rate (b) as the number of adversarial obstacles increases at fixed density $N=15$. <span class="hl-blue">AR-DPCBF variants substantially reduce both metrics</span> across the sweep, with buffer AR-DPCBF performing best throughout.</p>
-        </div>
-
-        <div class="result-card mb-4">
-            <img src="static/images/k_sweep_cost.png" alt="Barrier violation rate versus adversary capability and QP cost comparison" class="result-figure">
-            <p class="figure-caption mt-3">(a) Barrier-violation rate versus adversary capability $\kappa$: the AR-DPCBF variants remain in a low-violation cluster well separated from DPCBF, even as $\kappa$ approaches the validity edge $\kappa = c_{min}$. (b) Despite this added robustness, <span class="hl-blue">the AR-DPCBF variants require lower median QP cost</span> than the reactive DPCBF baseline.</p>
-        </div>
+        <video class="teaser-video" autoplay muted loop playsinline preload="auto">
+            <source src="static/videos/allocation_2.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <p class="has-text-centered is-size-5 mt-3">
+            Certificate-optimal responsibility allocation resolves multi-robot CBF infeasibility by redistributing shared safety constraints based on each agent’s available control authority.
+        </p>
     </div>
 </section>
 
