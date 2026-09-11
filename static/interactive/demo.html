@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive certificate &mdash; multi-robot safety filters</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --grey:#8a8a8a; --line:#e2e2e2;
+    --red:#c0392b; --green:#2e7d4f; --amber:#d98324;
+    --vel:#455a64; --t0:#2166ac; --t1:#762a83;
+    --bg:#ffffff; --panel:#fafafa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f5f6f8;color:var(--ink);
+       -webkit-font-smoothing:antialiased;
+       font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
+            "Helvetica Neue",Arial,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:38px 24px 72px}
+  h1{font-size:30px;margin:0 0 6px;letter-spacing:-.5px;font-weight:650}
+  .sub{color:#6b6f76;margin:0 0 26px;font-size:15px;max-width:70ch}
+  .grid{display:grid;grid-template-columns:1fr 392px;gap:22px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid #e7e9ec;border-radius:14px;
+        padding:18px;box-shadow:0 1px 2px rgba(16,24,40,.04),
+                                0 6px 18px -8px rgba(16,24,40,.08)}
+  .card h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.9px;
+           color:#8b9096;margin:0 0 12px;font-weight:700}
+  svg{display:block;width:100%;height:auto;touch-action:none}
+  .bar{fill:var(--blue)}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+            margin-bottom:18px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;
+       overflow:hidden;background:#fff}
+  .seg button{border:none;border-radius:0;box-shadow:none}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button:hover{box-shadow:none;background:#f7f8f9}
+  .seg button.on:hover{background:var(--ink)}
+  button{font:inherit;font-size:13.5px;padding:7px 14px;border-radius:8px;
+         border:1px solid var(--line);background:#fff;cursor:pointer;
+         transition:all .13s ease}
+  button:hover{border-color:#9aa;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+  button:active{transform:translateY(1px)}
+  button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .verdict{font-size:15.5px;font-weight:650;margin:0 0 14px;padding:9px 12px;
+           border-radius:9px;letter-spacing:-.1px}
+  .verdict.ok{background:#eaf5ee;color:#256b44}
+  .verdict.no{background:#fdeeeb;color:#b5372a}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;
+        font-size:13.5px;padding:6px 0;border-bottom:1px solid #f1f2f4}
+  .stat:last-of-type{border:none}
+  .stat span{color:#6b6f76}
+  .stat b{font-variant-numeric:tabular-nums;font-size:14.5px;font-weight:650}
+  .hint{color:#8b9096;font-size:12.5px;margin:10px 0 0;line-height:1.5}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(186px,1fr));
+          gap:9px 20px;color:#5f646b;font-size:12.5px;margin-top:14px;
+          padding-top:14px;border-top:1px solid #eef0f2}
+  .legend span{display:flex;align-items:center;gap:7px;line-height:1.35}
+  .sw{flex:none;width:13px;height:13px;border-radius:4px}
+  .swline{flex:none;width:17px;height:0;border-top:3px solid;border-radius:2px}
+  code{background:#f0f0f0;padding:1px 5px;border-radius:4px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Who is responsible for the safety constraint?</h1>
+  <p class="sub">Drag the robots. Every pair within sensing range is an
+     enforced constraint. The certificate below is recomputed on every
+     move. Drag a robot to move it, the teal arrow to set its velocity and body axis together, or the orange dot to turn the body axis alone.</p>
+
+  <div class="controls">
+    <button id="add">Add robot</button>
+    <button id="del">Remove</button>
+    <button id="rand">Randomise</button>
+    <span style="flex:1"></span>
+    <span class="seg">
+      <button class="on" id="mUnif">Uniform split</button>
+      <button id="mCert">Certificate&#8209;optimal</button>
+    </span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Fleet</h2>
+      <svg id="scene" viewBox="0 0 620 470"></svg>
+      <svg id="cbar" viewBox="0 -6 620 52" style="margin-top:10px"></svg>
+      <div class="legend">
+        <span><i class="sw" style="background:#e8f4ec;border:1.8px solid #2e7d4f"></i>
+              robot &mdash; local program feasible</span>
+        <span><i class="sw" style="background:#fbe4e0;border:1.8px solid #c0392b"></i>
+              robot &mdash; no admissible input</span>
+        <span><i class="swline" style="border-color:#455a64"></i>
+              velocity &mdash; drag the tip</span>
+        <span><i class="swline" style="border-color:#d98324"></i>
+              body axis &mdash; thrust acts along it</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <h2>Certificate</h2>
+        <div class="verdict ok" id="verdict">&nbsp;</div>
+        <div class="stat"><span>reserve <i>M</i>(<b>x</b>)</span><b id="M">—</b></div>
+        <div class="stat"><span>robots</span><b id="nN">—</b></div>
+        <div class="stat"><span>enforced constraints</span><b id="nK">—</b></div>
+        <div class="stat"><span>|supp &lambda;*|</span><b id="nS">—</b></div>
+        <div class="stat"><span>robots with leverage</span><b id="nL">—</b></div>
+        <p class="hint" id="hint"></p>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h2>Local margin &mdash; how much room each robot has</h2>
+        <svg id="mplot" viewBox="0 0 360 150"></svg>
+      </div>
+
+      <div class="card">
+        <h2>Leverage &mdash; who a stronger actuator would help</h2>
+        <svg id="lplot" viewBox="0 0 360 150"></svg>
+        <p class="hint">Identical under every allocation: the joint
+           certificate does not depend on&nbsp;<code>&theta;</code>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------- model
+const R_AG = 17, SENSE = 190, ABAR = 3.0, ALPHA2 = 3.0, UMAX = 1.0;
+const W = 620, H = 470;
+let mode = "uniform";
+let grab = null;   // {i, what}
+const VSCALE = 1.0;
+let agents = [];
+
+function seed(n){
+  agents = [];
+  for (let i = 0; i < n; i++){
+    const a = 2*Math.PI*i/n + 0.35;
+    agents.push({
+      x: W/2 + 130*Math.cos(a) + (Math.random()-0.5)*60,
+      y: H/2 + 118*Math.sin(a) + (Math.random()-0.5)*60,
+      vx: -(26 + Math.random()*22)*Math.cos(a),
+      vy: -(26 + Math.random()*22)*Math.sin(a),
+      th: a + Math.PI + (Math.random()-0.5)*0.5
+    });
+  }
+}
+
+// rows of the HOCBF chain for h_k = |q_i-q_j|^2 - (2r)^2, relative degree 2
+function build(){
+  const N = agents.length, E = [], G = [], b = [];
+  for (let i = 0; i < N; i++)
+    for (let j = i+1; j < N; j++){
+      const px = agents[i].x-agents[j].x, py = agents[i].y-agents[j].y;
+      const d = Math.hypot(px, py);
+      if (d > SENSE) continue;
+      const wx = agents[i].vx-agents[j].vx, wy = agents[i].vy-agents[j].vy;
+      const s = 1/100;                      // px -> metres
+      const P = [px*s, py*s], V = [wx*s, wy*s];
+      const h = P[0]*P[0]+P[1]*P[1] - (2*R_AG*s)*(2*R_AG*s);
+      const hd = 2*(P[0]*V[0]+P[1]*V[1]);
+      const row = new Array(N).fill(0);
+      row[i] =  2*(P[0]*Math.cos(agents[i].th)+P[1]*Math.sin(agents[i].th));
+      row[j] = -2*(P[0]*Math.cos(agents[j].th)+P[1]*Math.sin(agents[j].th));
+      G.push(row);
+      b.push(2*(V[0]*V[0]+V[1]*V[1]) + ABAR*hd + ALPHA2*(hd + ABAR*h));
+      E.push([i,j]);
+    }
+  return {E, G, b, N};
+}
+
+// ------------------------------------------------- dense two-phase simplex
+// min c.x  s.t.  A x = b (b >= 0), x >= 0
+function simplex(c, A, b){
+  const m = A.length, n = c.length;
+  let T = [], basis = [];
+  for (let i = 0; i < m; i++){
+    const r = new Float64Array(n+m+1);
+    for (let j = 0; j < n; j++) r[j] = A[i][j];
+    r[n+i] = 1; r[n+m] = b[i];
+    T.push(r); basis.push(n+i);
+  }
+  const z = new Float64Array(n+m+1);
+  for (let i = 0; i < m; i++){
+    for (let j = 0; j < n; j++) z[j] -= A[i][j];
+    z[n+m] -= b[i];
+  }
+  T.push(z);
+
+  function run(ncols){
+    for (let it = 0; it < 800; it++){
+      const row = T[T.length-1];
+      let j = -1, best = -1e-9;
+      for (let k = 0; k < ncols; k++) if (row[k] < best){ best = row[k]; j = k; }
+      if (j < 0) return true;
+      let i = -1, ratio = Infinity;
+      for (let r = 0; r < T.length-1; r++){
+        const v = T[r][j];
+        if (v > 1e-10){
+          const q = T[r][T[r].length-1]/v;
+          if (q < ratio - 1e-12){ ratio = q; i = r; }
+        }
+      }
+      if (i < 0) return false;                       // unbounded
+      const piv = T[i][j];
+      for (let k = 0; k < T[i].length; k++) T[i][k] /= piv;
+      for (let r = 0; r < T.length; r++){
+        if (r === i) continue;
+        const f = T[r][j];
+        if (Math.abs(f) > 1e-12)
+          for (let k = 0; k < T[r].length; k++) T[r][k] -= f*T[i][k];
+      }
+      basis[i] = j;
+    }
+    return true;
+  }
+
+  if (!run(n+m)) return null;
+  if (T[T.length-1][n+m] < -1e-7) return null;       // infeasible
+
+  const T2 = [];
+  for (let i = 0; i < m; i++){
+    const r = new Float64Array(n+1);
+    for (let j = 0; j < n; j++) r[j] = T[i][j];
+    r[n] = T[i][n+m];
+    T2.push(r);
+  }
+  const z2 = new Float64Array(n+1);
+  for (let j = 0; j < n; j++) z2[j] = c[j];
+  T2.push(z2);
+  for (let i = 0; i < m; i++){
+    const bi = basis[i];
+    if (bi < n && Math.abs(T2[m][bi]) > 1e-12){
+      const f = T2[m][bi];
+      for (let k = 0; k <= n; k++) T2[m][k] -= f*T2[i][k];
+    }
+  }
+  T = T2;
+  if (!run(n)) return null;
+  const x = new Float64Array(n);
+  for (let i = 0; i < m; i++) if (basis[i] < n) x[basis[i]] = T[i][n];
+  return x;
+}
+
+// certificate: min over the simplex of  lam.b + sum_i U|g_i.lam|
+function certificate(G, b, N){
+  const K = G.length;
+  if (!K) return null;
+  const nv = K + N, ns = 2*N;
+  const A = [], rhs = [], c = new Float64Array(nv + ns);
+  const eq = new Float64Array(nv + ns);
+  for (let k = 0; k < K; k++) eq[k] = 1;
+  A.push(eq); rhs.push(1);
+  for (let i = 0; i < N; i++){
+    for (const sgn of [1,-1]){
+      const r = new Float64Array(nv + ns);
+      for (let k = 0; k < K; k++) r[k] = sgn*G[k][i];
+      r[K+i] = -1;
+      r[nv + (i*2 + (sgn>0?0:1))] = 1;
+      A.push(r); rhs.push(0);
+    }
+  }
+  for (let k = 0; k < K; k++) c[k] = b[k];
+  for (let i = 0; i < N; i++) c[K+i] = UMAX;
+  const x = simplex(c, A, rhs);
+  if (!x) return null;
+  const lam = Array.from(x.slice(0, K));
+  let M = 0;
+  for (let k = 0; k < K; k++) M += lam[k]*b[k];
+  const lev = [];
+  for (let i = 0; i < N; i++){
+    let nu = 0;
+    for (let k = 0; k < K; k++) nu += lam[k]*G[k][i];
+    lev.push(UMAX*Math.abs(nu));
+    M += UMAX*Math.abs(nu);
+  }
+  return {M, lam, lev};
+}
+
+// m_i^loc = max_{|u|<=U} min_k (theta_k b_k + G_ki u)   -- 1-D, exact
+function localMargin(rowsK, U){
+  if (!rowsK.length) return Infinity;
+  const cand = [-U, U];
+  for (let a = 0; a < rowsK.length; a++)
+    for (let c2 = a+1; c2 < rowsK.length; c2++){
+      const dg = rowsK[a].g - rowsK[c2].g;
+      if (Math.abs(dg) > 1e-12){
+        const u = (rowsK[c2].c - rowsK[a].c)/dg;
+        if (u > -U && u < U) cand.push(u);
+      }
+    }
+  let best = -Infinity;
+  for (const u of cand){
+    let mn = Infinity;
+    for (const r of rowsK) mn = Math.min(mn, r.c + r.g*u);
+    best = Math.max(best, mn);
+  }
+  return best;
+}
+
+// allocation LP of Theorem: max t s.t. t <= theta b + G u, per agent
+function allocate(E, G, b, N){
+  const K = G.length;
+  if (!K) return new Array(K).fill(0.5);
+  const nv = 1 + K + N;                    // t, theta, u
+  const A = [], rhs = [], c = new Float64Array(nv + 2*K + 2*N + K);
+  // We solve with slacks appended; build inequalities first.
+  const ineq = [], ib = [];
+  for (let k = 0; k < K; k++){
+    const [i,j] = E[k];
+    let r = new Float64Array(nv); r[0] = 1; r[1+k] = -b[k]; r[1+K+i] = -G[k][i];
+    ineq.push(r); ib.push(0);
+    r = new Float64Array(nv); r[0] = 1; r[1+k] = b[k]; r[1+K+j] = -G[k][j];
+    ineq.push(r); ib.push(b[k]);
+    r = new Float64Array(nv); r[1+k] = 1; ineq.push(r); ib.push(1);   // theta<=1
+  }
+  // u free -> split into u+ - u-, t free -> t+ - t-
+  const nx = 2 + K + 2*N;                  // t+,t-, theta, u+,u-
+  // actuation bound |u_i| <= UMAX  ->  u+_i + u-_i <= UMAX
+  for (let i = 0; i < N; i++){
+    const r = new Float64Array(nv);
+    r[1+K+i] = Number.NaN;                 // marker, expanded below
+    ineq.push(r); ib.push(UMAX);
+  }
+  const nS = ineq.length;
+  const AA = [], bb = [], cc = new Float64Array(nx + nS);
+  for (let s = 0; s < nS; s++){
+    const r = new Float64Array(nx + nS);
+    let uBound = -1;
+    for (let i = 0; i < N; i++) if (Number.isNaN(ineq[s][1+K+i])) uBound = i;
+    if (uBound >= 0){
+      r[2+K+uBound] = 1; r[2+K+N+uBound] = 1;      // u+ + u- <= UMAX
+    } else {
+      r[0] =  ineq[s][0]; r[1] = -ineq[s][0];
+      for (let k = 0; k < K; k++) r[2+k] = ineq[s][1+k];
+      for (let i = 0; i < N; i++){
+        r[2+K+i]   =  ineq[s][1+K+i];
+        r[2+K+N+i] = -ineq[s][1+K+i];
+      }
+    }
+    r[nx+s] = 1;
+    AA.push(r); bb.push(ib[s]);
+  }
+  cc[0] = -1; cc[1] = 1;                   // maximise t
+  const x = simplex(cc, AA, bb);
+  if (!x) return new Array(K).fill(0.5);
+  const th = [];
+  for (let k = 0; k < K; k++) th.push(Math.min(1, Math.max(0, x[2+k])));
+  return th;
+}
+
+// ---------------------------------------------------------------- solve
+function solve(){
+  const {E, G, b, N} = build();
+  const K = G.length;
+  const cert = certificate(G, b, N);
+  const th = (mode === "certificate") ? allocate(E, G, b, N)
+                                      : new Array(K).fill(0.5);
+  const m = [], bad = [];
+  for (let i = 0; i < N; i++){
+    const rowsK = [];
+    for (let k = 0; k < K; k++){
+      if (E[k][0] === i) rowsK.push({c: th[k]*b[k], g: G[k][i]});
+      else if (E[k][1] === i) rowsK.push({c: (1-th[k])*b[k], g: G[k][i]});
+    }
+    const v = localMargin(rowsK, UMAX);
+    m.push(v); bad.push(v < 0);
+  }
+  return {E, G, b, N, K, th, m, bad, cert};
+}
+
+// ---------------------------------------------------------------- render
+const NS = "http://www.w3.org/2000/svg";
+function el(t, at){ const e = document.createElementNS(NS, t);
+  for (const k in at) e.setAttribute(k, at[k]); return e; }
+function ramp(t){            // 0 -> blue, .5 -> neutral, 1 -> purple
+  const c0 = [33,102,172], c1 = [226,226,226], c2 = [118,42,131];
+  const a = t < .5 ? c0 : c1, bq = t < .5 ? c1 : c2, u = t < .5 ? t*2 : (t-.5)*2;
+  return `rgb(${a.map((v,i)=>Math.round(v+(bq[i]-v)*u)).join(",")})`;
+}
+
+function draw(){
+  const S = solve();
+  const svg = document.getElementById("scene");
+  svg.textContent = "";
+  svg.appendChild(el("rect", {x:0, y:0, width:W, height:H, fill:"#fcfcfd", rx:8, stroke:"#ececec"}));
+
+  for (let k = 0; k < S.K; k++){
+    const [i,j] = S.E[k];
+    svg.appendChild(el("line", {
+      x1:agents[i].x, y1:agents[i].y, x2:agents[j].x, y2:agents[j].y,
+      stroke:ramp(S.th[k]), "stroke-width":3.6, "stroke-linecap":"round", opacity:0.92}));
+  }
+  // velocity arrows and body axes
+  agents.forEach((a) => {
+    const vlen = Math.hypot(a.vx, a.vy)*VSCALE;
+    if (vlen <= 6){                      // at rest: still offer a handle
+      const hx = a.x + 24*Math.cos(a.th - Math.PI/2),
+            hy = a.y + 24*Math.sin(a.th - Math.PI/2);
+      svg.appendChild(el("line", {x1:a.x, y1:a.y, x2:hx, y2:hy,
+        stroke:"#455a64", "stroke-width":1, "stroke-dasharray":"2 3",
+        opacity:0.6}));
+      svg.appendChild(el("circle", {cx:hx, cy:hy, r:4.2, fill:"#fff",
+        stroke:"#455a64", "stroke-width":1.6}));
+    }
+    if (vlen > 2){
+      const ux = a.vx*VSCALE, uy = a.vy*VSCALE;
+      const ex = a.x+ux, ey = a.y+uy, ang = Math.atan2(uy, ux);
+      svg.appendChild(el("line", {x1:a.x, y1:a.y, x2:ex, y2:ey,
+        stroke:"#455a64", "stroke-width":2.2, "stroke-linecap":"round"}));
+      const hx = 7;
+      svg.appendChild(el("polygon", {fill:"#455a64", points:
+        `${ex},${ey} ${ex-hx*Math.cos(ang-0.42)},${ey-hx*Math.sin(ang-0.42)} `+
+        `${ex-hx*Math.cos(ang+0.42)},${ey-hx*Math.sin(ang+0.42)}`}));
+    }
+    const hx2 = a.x+30*Math.cos(a.th), hy2 = a.y+30*Math.sin(a.th);
+    svg.appendChild(el("line", {x1:a.x, y1:a.y, x2:hx2, y2:hy2,
+      stroke:"#d98324", "stroke-width":2.4, "stroke-linecap":"round"}));
+    svg.appendChild(el("circle", {cx:hx2, cy:hy2, r:3.4, fill:"#d98324"}));
+  });
+
+  agents.forEach((a, i) => {
+    const hot = S.bad[i];
+    svg.appendChild(el("circle", {cx:a.x, cy:a.y, r:R_AG,
+      fill: hot ? "#fbe4e0" : "#e8f4ec",
+      stroke: hot ? "#c0392b" : "#2e7d4f", "stroke-width": hot ? 3.2 : 2,
+      "data-i": i, style:"cursor:grab"}));
+    const t = el("text", {x:a.x, y:a.y+4, "text-anchor":"middle",
+      "font-size":12, "font-weight":"600",
+      fill: hot ? "#c0392b" : "#2e7d4f", "pointer-events":"none"});
+    t.textContent = i; svg.appendChild(t);
+  });
+
+  const nb = S.bad.filter(Boolean).length;
+  const v = document.getElementById("verdict");
+  v.textContent = nb ? `${nb} robot${nb>1?"s":""} with no admissible input`
+                     : "every local program is feasible";
+  v.className = "verdict " + (nb ? "no" : "ok");
+  document.getElementById("M").textContent =
+      S.cert ? S.cert.M.toFixed(3) : "—";
+  document.getElementById("nN").textContent = S.N;
+  document.getElementById("nK").textContent = S.K;
+  document.getElementById("nS").textContent =
+      S.cert ? S.cert.lam.filter(x => x > 1e-7).length : "—";
+  document.getElementById("nL").textContent =
+      S.cert ? S.cert.lev.filter(x => x > 1e-7).length : "—";
+  document.getElementById("hint").textContent = S.cert
+    ? (S.cert.M >= 0
+        ? "M ≥ 0: a joint input satisfying every constraint exists."
+        : "M < 0: no input satisfies all constraints at once, whatever the split.")
+    : "";
+
+  bars("mplot", S.m.map(x => isFinite(x) ? x : 0), S.bad, true);
+  bars("lplot", S.cert ? S.cert.lev : [], null, false);
+}
+
+function bars(id, vals, bad, signed){
+  const s = document.getElementById(id);
+  s.textContent = "";
+  const Wp = 360, Hp = 150, L = 38, B = 26, T = 14;
+  if (!vals.length) return;
+  const hi = Math.max(1e-6, ...vals.map(Math.abs));
+  const zero = signed ? Hp - B - (Hp-B-T)*0.5 : Hp - B;
+  const sc = signed ? (Hp-B-T)/2/hi : (Hp-B-T)/hi;
+  s.appendChild(el("line", {x1:L, y1:zero, x2:Wp-6, y2:zero,
+                            stroke:"#333", "stroke-width":1}));
+  const bw = Math.min(26, (Wp-L-12)/vals.length - 4);
+  vals.forEach((v, i) => {
+    const x = L + i*((Wp-L-12)/vals.length) + 3;
+    const h = Math.abs(v)*sc;
+    const y = v >= 0 ? zero-h : zero;
+    s.appendChild(el("rect", {x, y, width:bw, height:Math.max(h,0.7),
+      fill: bad ? (bad[i] ? "#c0392b" : "#2e7d4f")
+                : (v > 1e-7 ? "#455a64" : "#d8d8d8"),
+      rx:2}));
+    const t = el("text", {x:x+bw/2, y:Hp-8, "text-anchor":"middle",
+                          "font-size":10, fill:"#8a8a8a"});
+    t.textContent = i; s.appendChild(t);
+  });
+  const lab = el("text", {x:2, y:T+9, "font-size":10.5, fill:"#9aa0a6",
+                          "font-weight":"600"});
+  lab.textContent = hi.toFixed(2); s.appendChild(lab);
+  if (signed){
+    const z = el("text", {x:2, y:zero+4, "font-size":10.5, fill:"#9aa0a6"});
+    z.textContent = "0"; s.appendChild(z);
+    const lo = el("text", {x:2, y:Hp-B-2, "font-size":10.5, fill:"#9aa0a6"});
+    lo.textContent = "-" + hi.toFixed(2); s.appendChild(lo);
+  }
+  const ax = el("text", {x:Wp-6, y:Hp-8, "font-size":10, fill:"#b0b5ba",
+                         "text-anchor":"end"});
+  ax.textContent = "robot"; s.appendChild(ax);
+}
+
+// ---------------------------------------------------------------- input
+let drag = null;
+const scene = document.getElementById("scene");
+function pt(ev){
+  const r = scene.getBoundingClientRect();
+  const c = ev.touches ? ev.touches[0] : ev;
+  return {x:(c.clientX-r.left)*W/r.width, y:(c.clientY-r.top)*H/r.height};
+}
+function down(ev){
+  const p = pt(ev);
+  let best = null, bd = 1e9;
+  agents.forEach((a, i) => {
+    const cands = [
+      ["body", a.x, a.y, R_AG + 4],
+      ["vel",  (Math.hypot(a.vx, a.vy)*VSCALE <= 6)
+                 ? a.x + 24*Math.cos(a.th - Math.PI/2)
+                 : a.x + a.vx*VSCALE,
+               (Math.hypot(a.vx, a.vy)*VSCALE <= 6)
+                 ? a.y + 24*Math.sin(a.th - Math.PI/2)
+                 : a.y + a.vy*VSCALE, 15],
+      ["head", a.x + 30*Math.cos(a.th), a.y + 30*Math.sin(a.th), 13]
+    ];
+    for (const [what, hx, hy, tol] of cands){
+      const d = Math.hypot(hx - p.x, hy - p.y);
+      if (d < tol && d < bd){ bd = d; best = {i, what}; }
+    }
+  });
+  if (best){ grab = best; ev.preventDefault(); }
+}
+function move(ev){
+  if (!grab) return;
+  const p = pt(ev), a = agents[grab.i];
+  if (grab.what === "body"){
+    a.x = Math.max(R_AG, Math.min(W-R_AG, p.x));
+    a.y = Math.max(R_AG, Math.min(H-R_AG, p.y));
+  } else if (grab.what === "vel"){
+    a.vx = (p.x-a.x)/VSCALE; a.vy = (p.y-a.y)/VSCALE;
+    const sp = Math.hypot(a.vx, a.vy);
+    if (sp > 120){ a.vx *= 120/sp; a.vy *= 120/sp; }
+    if (sp > 4) a.th = Math.atan2(a.vy, a.vx);   // it points where it goes
+  } else {
+    a.th = Math.atan2(p.y-a.y, p.x-a.x);
+  }
+  ev.preventDefault(); draw();
+}
+function up(){ grab = null; }
+scene.addEventListener("mousedown", down);
+window.addEventListener("mousemove", move);
+window.addEventListener("mouseup", up);
+scene.addEventListener("touchstart", down, {passive:false});
+window.addEventListener("touchmove", move, {passive:false});
+window.addEventListener("touchend", up);
+
+document.getElementById("add").onclick = () => {
+  if (agents.length >= 15) return;
+  agents.push({x: W/2 + (Math.random()-0.5)*220,
+               y: H/2 + (Math.random()-0.5)*180,
+               vx:(Math.random()-0.5)*70, vy:(Math.random()-0.5)*70,
+               th: Math.random()*2*Math.PI});
+  const q = agents[agents.length-1];
+  if (Math.hypot(q.vx, q.vy) < 20){ q.vx = 34; q.vy = 12; }
+  q.th = Math.atan2(q.vy, q.vx);
+  draw();
+};
+document.getElementById("del").onclick = () => {
+  if (agents.length > 2){ agents.pop(); draw(); } };
+document.getElementById("rand").onclick = () => { seed(agents.length); draw(); };
+const bu = document.getElementById("mUnif"), bc = document.getElementById("mCert");
+bu.onclick = () => { mode = "uniform"; bu.classList.add("on");
+                     bc.classList.remove("on"); draw(); };
+bc.onclick = () => { mode = "certificate"; bc.classList.add("on");
+                     bu.classList.remove("on"); draw(); };
+
+// theta colour bar
+(function(){
+  const c = document.getElementById("cbar");
+  const defs = el("defs", {});
+  const g = el("linearGradient", {id:"tg", x1:"0", x2:"1", y1:"0", y2:"0"});
+  for (let i = 0; i <= 10; i++)
+    g.appendChild(el("stop", {offset:(i*10)+"%", "stop-color":ramp(i/10)}));
+  defs.appendChild(g); c.appendChild(defs);
+
+  const X0 = 175, X1 = 445, Y = 14;
+  const cap = el("text", {x:310, y:6, "font-size":11.5, fill:"#6b6f76",
+                          "text-anchor":"middle"});
+  cap.textContent = "Edge colour: the share \u03B8 of a constraint carried by "
+                  + "the lower-numbered of its two robots";
+  c.appendChild(cap);
+
+  c.appendChild(el("rect", {x:X0, y:Y, width:X1-X0, height:10,
+                            fill:"url(#tg)", rx:2,
+                            stroke:"#dcdee1", "stroke-width":0.6}));
+  [[0,"0"],[0.5,"0.5"],[1,"1"]].forEach(function(p){
+    const x = X0 + p[0]*(X1-X0);
+    c.appendChild(el("line", {x1:x, y1:Y+10, x2:x, y2:Y+14,
+                              stroke:"#b9bdc2", "stroke-width":1}));
+    const t = el("text", {x:x, y:Y+25, "font-size":11, fill:"#8b9096",
+                          "text-anchor":"middle"});
+    t.textContent = p[1]; c.appendChild(t);
+  });
+  const l = el("text", {x:X0-10, y:Y+9, "font-size":11, fill:"#8b9096",
+                        "text-anchor":"end"});
+  l.textContent = "all theirs"; c.appendChild(l);
+  const r = el("text", {x:X1+10, y:Y+9, "font-size":11, fill:"#8b9096"});
+  r.textContent = "all the other's"; c.appendChild(r);
+  c.setAttribute("viewBox", "0 -6 620 52");
+})();
+
+seed(7); draw();
+</script>
+</body>
+</html>

@@ -1,358 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- KaTeX (math-italic font genuinely derived from cmmi10 / cmmib10, unlike MathJax's redrawn approximation) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-        onload="renderMathInElement(document.body, {
-            delimiters: [
-                {left: '$$', right: '$$', display: true},
-                {left: '\\[', right: '\\]', display: true},
-                {left: '$', right: '$', display: false},
-                {left: '\\(', right: '\\)', display: false}
-            ]
-        });"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When the Safety Filter Fails — Exact Diagnosis of Infeasibility in Multi-Robot Control Barrier Functions</title>
+<meta name="description" content="An exact conic certificate for multi-robot CBF safety-filter infeasibility, and a linear program that divides each shared constraint optimally.">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="static/css/style.css">
 
-    <title>Exact Feasibility Certification and Optimal Responsibility Allocation for Multi-Robot CBF Safety Filters</title>
-
-    <meta name="description"
-          content="Project page for Exact Feasibility Certification and Optimal Responsibility Allocation for Multi-Robot CBF Safety Filters">
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
-
-    <!-- Bulma -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-    <!-- Academicons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="static/css/style.css">
-
-    <!-- Scoped blue highlight style for important terms -->
-    <style>
-        .hl-blue { color: #2563eb; font-weight: 600; }
-    </style>
+<style>
+  :root{ --ink:#1f2328; --mute:#6b7280; --line:#e6e8eb;
+         --accent:#1a4f8a; --good:#2e7d4f; --bad:#c0392b; }
+  body{color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif}
+  .publication-title{letter-spacing:-.7px;line-height:1.16}
+  .section-compact{padding:2.6rem 1.5rem}
+  .hero.section-compact{padding-bottom:1rem}
+  h2.title.is-3{letter-spacing:-.3px;margin-bottom:.4rem}
+  .lede{color:var(--mute);text-align:center;max-width:62ch;margin:0 auto 2rem}
+  .rule{width:52px;height:3px;background:var(--accent);border-radius:2px;
+        margin:0 auto 1.4rem}
+  .teaser-video,.frame{width:100%;border-radius:12px;border:1px solid var(--line);
+        box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -14px rgba(16,24,40,.16)}
+  .figure-caption{color:var(--mute);font-size:.94rem;line-height:1.6;
+        margin-top:.7rem}
+  .figure-caption strong{color:var(--ink)}
+  .card-soft{background:#fff;border:1px solid var(--line);border-radius:14px;
+        padding:1.5rem;height:100%;
+        box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  .card-soft h3{font-weight:700;font-size:1.04rem;margin-bottom:.45rem;
+        letter-spacing:-.1px}
+  .card-soft .num{display:inline-flex;align-items:center;justify-content:center;
+        width:26px;height:26px;border-radius:8px;background:#eef3f9;
+        color:var(--accent);font-weight:700;font-size:.86rem;margin-right:.5rem}
+  .metric{font-variant-numeric:tabular-nums;font-weight:700}
+  .good{color:var(--good)} .bad{color:var(--bad)}
+  table.tidy{width:100%;border-collapse:collapse;font-size:.95rem}
+  table.tidy th,table.tidy td{padding:.55rem .6rem;text-align:right;
+        border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  table.tidy th:first-child,table.tidy td:first-child{text-align:left}
+  table.tidy thead th{font-size:.78rem;text-transform:uppercase;
+        letter-spacing:.6px;color:var(--mute);font-weight:700}
+  table.tidy tr.ours td{background:#f3f8f5;font-weight:650}
+  pre code{font-size:.86rem}
+  .tag.is-info{background:var(--accent)}
+  .interactive-frame{width:100%;border:1px solid var(--line);border-radius:12px}
+  footer.footer{background:#fafbfc;border-top:1px solid var(--line);
+        padding:2rem 1.5rem}
+</style>
 </head>
-
 <body>
 
-<!-- HERO -->
+<!-- ============================ HERO ============================ -->
 <section class="hero section-compact">
-    <div class="hero-body">
-        <div class="container is-max-desktop has-text-centered">
-            <span class="tag is-info is-medium is-rounded">Preprint</span>
-            <br><br>
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <span class="tag is-info is-medium is-rounded">Submitted to ICRA 2027</span>
+      <br><br>
+      <h1 class="title is-1 publication-title">
+        When the Safety Filter Fails: Exact Diagnosis of Infeasibility
+        in Multi-Robot Control Barrier Functions
+      </h1>
 
-            <h1 class="title is-1 publication-title">
-                Exact Feasibility Certification and Optimal Responsibility Allocation for Multi-Robot CBF Safety Filters
-            </h1>
+      <div class="is-size-5 publication-authors mt-4">
+        <span class="author-block"><strong>Chandan Kumar Sah</strong><sup>1</sup></span>
+        &nbsp;&nbsp;
+        <span class="author-block">Jishnu Keshavan<sup>1</sup></span>
+      </div>
+      <div class="is-size-6 publication-authors mt-2" style="color:#6b7280">
+        <sup>1</sup> Department of Mechanical Engineering, Indian Institute of Science, Bengaluru
+      </div>
 
-            <!-- <h2 class="subtitle is-4">
-                Robust Safe Navigation under Dynamic Adversarial Obstacles
-            </h2> -->
-
-            <!-- Authors -->
-            <div class="is-size-5 publication-authors">
-                <span class="author-block"><strong>Chandan Kumar Sah</strong><sup>1</sup></span>
-                &nbsp;&nbsp;
-                <span class="author-block">Jishnu Keshavan<sup>1</sup></span>
-            </div>
-
-            <div class="is-size-5 publication-authors mt-2">
-                <sup>1</sup> Department of Mechanical Engineering, Indian Institute of Science
-            </div>
-
-            <!-- Buttons -->
-            <div class="buttons is-centered mt-4">
-                <a href="#" class="button is-dark is-rounded">
-                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
-                    <span>Paper</span>
-                </a>
-                <a href="#" class="button is-dark is-rounded">
-                    <span class="icon"><i class="fab fa-github"></i></span>
-                    <span>Code</span>
-                </a>
-                <a href="#" class="button is-dark is-rounded">
-                    <span class="icon"><i class="fab fa-youtube"></i></span>
-                    <span>Video</span>
-                </a>
-                <a href="#citation" class="button is-dark is-rounded">
-                    <span class="icon"><i class="fas fa-quote-right"></i></span>
-                    <span>BibTeX</span>
-                </a>
-            </div>
-        </div>
+      <div class="buttons is-centered mt-5">
+        <a href="static/pdfs/paper.pdf" class="button is-dark is-rounded">
+          <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span></a>
+        <a href="#" class="button is-dark is-rounded">
+          <span class="icon"><i class="ai ai-arxiv"></i></span><span>arXiv</span></a>
+        <a href="#" class="button is-dark is-rounded">
+          <span class="icon"><i class="fab fa-github"></i></span><span>Code</span></a>
+        <a href="#demo" class="button is-dark is-rounded">
+          <span class="icon"><i class="fas fa-hand-pointer"></i></span><span>Interactive demo</span></a>
+        <a href="#citation" class="button is-dark is-rounded">
+          <span class="icon"><i class="fas fa-quote-right"></i></span><span>BibTeX</span></a>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- HERO VIDEO -->
+<!-- ========================= HERO VIDEO ========================= -->
 <section class="section section-compact pt-0">
-    <div class="container is-max-desktop">
-        <video class="teaser-video" autoplay muted loop playsinline preload="auto">
-            <source src="static/videos/hero (2).mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <p class="has-text-centered is-size-5 mt-3">
-            Certificate-optimal responsibility allocation resolves multi-robot CBF infeasibility by redistributing shared safety constraints based on each agent’s available control authority.
+  <div class="container is-max-desktop">
+    <video class="teaser-video" autoplay muted loop playsinline preload="auto">
+      <source src="static/videos/hero.mp4" type="video/mp4">
+    </video>
+    <p class="figure-caption has-text-centered">
+      Sixteen underactuated robots. Every pair within sensing range is an
+      enforced safety constraint, drawn as an edge coloured by the share
+      <em>&theta;<sub>k,i</sub></em> of that constraint each endpoint is made
+      responsible for. A single linear program chooses the division at every
+      control step, and no local program is ever infeasible.
+    </p>
+  </div>
+</section>
+
+<!-- ========================== ABSTRACT ========================== -->
+<section class="section section-compact" id="abstract">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Abstract</h2>
+    <div class="rule"></div>
+    <div class="content is-size-5" style="line-height:1.68">
+      <p>
+        Pointwise infeasibility of multi-robot control barrier function (CBF)
+        safety filters offers little guidance on its underlying cause. We
+        derive an <strong>exact conic certificate</strong> whose sign decides
+        feasibility and whose value separates the problem into a
+        <em>demand</em> term, controlled by the barrier encoding, and a
+        <em>supply</em> term, controlled by the geometry of the input sets.
+      </p>
+      <p>
+        Three consequences follow. The supply is <strong>invariant</strong> to
+        the choice of class-<em>K</em> functions, so retuning gains cannot
+        create capability. There exist <strong>structurally degenerate</strong>
+        states at which no increase in actuation restores feasibility. And the
+        certificate's multiplier is <strong>sparse</strong>, naming the few
+        interactions and agents responsible for a conflict.
+      </p>
+      <p>
+        Because the certificate prices any division of a shared constraint
+        exactly, the optimal division is the solution of a single
+        <strong>linear program</strong>, solved centrally and executed locally.
+        Across 320 paired closed-loop runs it reduces infeasible control steps
+        from about 50% for the uniform and capability-weighted heuristics to
+        <span class="metric good">6.0%</span>, matching a centralized filter,
+        and cuts runs containing a safety violation from
+        <span class="metric">118/160</span> to
+        <span class="metric good">23/160</span>, at 2.3&nbsp;ms per step.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= THE THREE QUESTIONS ================== -->
+<section class="section section-compact" id="contributions">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">When the filter says no, what should you change?</h2>
+    <div class="rule"></div>
+    <p class="lede">
+      A solver failure is a single bit. The certificate turns it into an
+      answer to three separate questions, each with a different remedy.
+    </p>
+
+    <div class="columns is-multiline">
+      <div class="column is-4">
+        <div class="card-soft">
+          <h3><span class="num">1</span>Retune the gains?</h3>
+          <p>
+            No. The input coefficients of the barrier chain are
+            <strong>independent of every class-<em>K</em> function</strong>,
+            so the supply term cannot be moved by tuning. Exactly one
+            exception exists, through an off-chain penultimate gain.
+          </p>
+        </div>
+      </div>
+      <div class="column is-4">
+        <div class="card-soft">
+          <h3><span class="num">2</span>Add actuation?</h3>
+          <p>
+            Sometimes. We characterize <strong>structurally degenerate</strong>
+            states at which every agent's thrust axis is annihilated by the
+            constraint it carries; there, scaling the input sets by any factor
+            leaves the certificate unchanged.
+          </p>
+        </div>
+      </div>
+      <div class="column is-4">
+        <div class="card-soft">
+          <h3><span class="num">3</span>Divide it differently?</h3>
+          <p>
+            Usually, and cheaply. The certificate prices any division exactly,
+            so the best one is a <strong>linear program</strong>. It changes
+            neither the constraint nor the fleet's capability, only whether the
+            local programs can use it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= THE MECHANISM ====================== -->
+<section class="section section-compact" id="mechanism">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">What the allocation does, and what it cannot</h2>
+    <div class="rule"></div>
+    <img src="static/images/fig10_allocmech.png" class="frame" alt="Allocation mechanism">
+    <p class="figure-caption">
+      <strong>One conflict, three allocations, one state.</strong>
+      <em>Left:</em> each robot's local margin. Three robots have no admissible
+      input under the uniform split and two under the capability-weighted
+      split; the linear program lifts the worst margin above zero, and five of
+      eight robots end up at exactly that optimum &mdash; the signature of a
+      max&ndash;min solution. <em>Middle:</em> the capability leverage
+      &part;M/&part;&rho;<sub>i</sub> is <em>identical</em> under all three
+      allocations, because the joint certificate does not depend on the
+      division. <em>Right:</em> what does change it &mdash; raising one robot's
+      actuation moves the reserve at exactly the predicted rate, while a 50%
+      increase for a robot of zero leverage leaves it untouched.
+    </p>
+  </div>
+</section>
+
+<!-- ========================== ATTRIBUTION ======================= -->
+<section class="section section-compact" id="attribution">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Which interaction is to blame?</h2>
+    <div class="rule"></div>
+    <img src="static/images/fig8_attribution.png" class="frame" alt="Conflict attribution">
+    <p class="figure-caption">
+      <strong>The multiplier is sparse, and it names the conflict.</strong>
+      In a ten-robot conflict with 24 enforced pairs, the dual support is a
+      <em>single</em> pair, and only its two endpoints carry any leverage.
+      Over 52 closed-loop conflicts, relaxing the pair the certificate names
+      restores feasibility in <span class="metric good">94%</span> of cases,
+      against 4&ndash;6% for the closest pair, the smallest barrier value, the
+      smallest &psi;, or chance. The blame does not grow with the fleet: the
+      support averages 1.4 pairs from six robots to sixteen.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ RESULTS ========================= -->
+<section class="section section-compact" id="results">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Closed-loop evaluation</h2>
+    <div class="rule"></div>
+    <p class="lede">
+      320 paired runs &mdash; identical fleets, tasks and actuation bounds,
+      40 random tasks at each fleet size, with only the allocation differing.
+    </p>
+
+    <div class="columns is-vcentered">
+      <div class="column is-7">
+        <img src="static/images/fig9_allocation.png" class="frame" alt="Allocation results">
+      </div>
+      <div class="column is-5">
+        <table class="tidy">
+          <thead>
+            <tr><th>Allocation</th><th>Infeasible steps</th><th>Unsafe runs</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Centralized <span style="color:#6b7280">(reference)</span></td>
+                <td>5.4%</td><td>59/160</td></tr>
+            <tr><td>Uniform split</td><td>50.8%</td><td>118/160</td></tr>
+            <tr><td>Capability-weighted</td><td>49.6%</td><td>123/160</td></tr>
+            <tr class="ours"><td>Certificate-optimal</td>
+                <td class="good">6.0%</td><td class="good">23/160</td></tr>
+          </tbody>
+        </table>
+        <p class="figure-caption">
+          Heterogeneous fleets, pooled over four fleet sizes. The proposed
+          allocation recovers the entire penalty of decentralizing the
+          constraint and is statistically indistinguishable from a centralized
+          filter, while the two heuristics retain more than forty percentage
+          points of it.
         </p>
+      </div>
     </div>
+  </div>
 </section>
 
-<section class="section section-compact pt-5" id="motivation">
-    <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-4">Motivation</h2>
-
-        <div class="content is-medium">
-            <p style="line-height: 1.75;">
-                Control Barrier Functions (CBFs) provide a powerful mechanism for enforcing
-                safety through online optimization. For a multi-robot system, however,
-                several safety constraints may compete for the limited control authority
-                of different robots, causing the CBF safety filter to become
-                <strong>infeasible</strong>.
-            </p>
-
-            <p style="line-height: 1.75;">
-                The usual outcome is simply a binary signal:
-                <span class="hl-blue"><strong>feasible or infeasible</strong></span>.
-                But infeasibility alone does not answer the questions that matter in
-                practice: <em>Which interaction is responsible?</em>
-                <em>Which robot lacks sufficient control authority?</em>
-                And
-                <em>how should the shared safety constraints be distributed among the robots?</em>
-            </p>
-
-            <p style="line-height: 1.75;">
-                This motivates an <strong>exact feasibility certificate</strong> that
-                separates the <span class="hl-blue">demand imposed by the safety constraints</span>
-                from the <span class="hl-blue">control authority supplied by the actuators</span>.
-                Rather than merely detecting infeasibility, the certificate reveals its
-                source and quantifies how much each agent can contribute.
-            </p>
-
-            <p style="line-height: 1.75;">
-                This perspective turns CBF infeasibility from a failure signal into a
-                <strong>diagnostic and allocation problem</strong>: identify the responsible
-                interaction, determine where additional actuator authority would be useful,
-                and optimally distribute shared constraints so that the worst local
-                feasibility margin is maximized.
-            </p>
-        </div>
-
-        <div class="has-text-centered mt-5">
-            <embed
-                src="static/images/fig_motivation.pdf"
-                type="application/pdf"
-                width="100%"
-                height="650px"
-                style="border-radius: 12px;">
-        </div>
-
-        <p class="figure-caption mt-3 has-text-centered">
-            <strong>Why feasibility alone is not enough.</strong>
-            CBF infeasibility is not merely a binary failure: the proposed certificate
-            identifies the source of infeasibility and enables principled responsibility
-            allocation among interacting robots.
-        </p>
-    </div>
+<!-- ======================= SIDE-BY-SIDE RUN ===================== -->
+<section class="section section-compact" id="story">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">The same task, three ways</h2>
+    <div class="rule"></div>
+    <video class="teaser-video" autoplay muted loop playsinline preload="auto">
+      <source src="static/videos/allocation.mp4" type="video/mp4">
+    </video>
+    <p class="figure-caption">
+      Identical initial conditions, goals and actuation bounds; only the
+      division of each shared constraint differs. The uniform and
+      capability-weighted splits leave some local program infeasible on
+      <span class="metric bad">45%</span> and
+      <span class="metric bad">32%</span> of steps and both fleets stall; the
+      certificate-optimal split does so on
+      <span class="metric good">0.3%</span> and keeps the worst local margin
+      positive throughout.
+    </p>
+  </div>
 </section>
 
-<!-- HIGHLIGHTED CENTRAL QUESTION CALLOUT -->
-<section class="section py-3">
-    <div class="container is-max-desktop">
-        <div class="question-callout py-3 my-2">
-            <div class="has-text-centered mb-3">
-                <span class="uppercase-label" style="color: #000000; font-size: 1.1rem;">
-                    <i class="fas fa-lightbulb mr-2" style="color: #FFD700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);"></i> Central Research Question
-                </span>
-            </div>
-            <h3 class="callout-question has-text-centered" style="color: #000000; font-size: 1.65rem; line-height: 1.5;">
-                "Can safety guarantees be recovered when surrounding obstacles are allowed to maneuver within known physical limits?"
-            </h3>
-        </div>
-    </div>
+<!-- ========================= INTERACTIVE ======================== -->
+<section class="section section-compact" id="demo">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Try the certificate yourself</h2>
+    <div class="rule"></div>
+    <p class="lede">
+      Drag the robots, their velocities and their body axes. The conic
+      certificate, the allocation linear program and every local margin are
+      solved live in your browser. Switch between the uniform split and the
+      certificate-optimal one to watch infeasible robots turn feasible with
+      nothing else changed.
+    </p>
+    <iframe src="static/interactive/demo.html" class="interactive-frame"
+            style="height:1180px" loading="lazy" title="Interactive certificate"></iframe>
+  </div>
 </section>
 
-<!-- A NEW SAFETY FRAMEWORK: A-CBF -->
-<section class="section section-compact py-5" id="acbf">
-    <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-4">A New Safety Framework: Adversarial Control Barrier Functions</h2>
-        <div class="content mb-5">
-            <p style="line-height: 1.7;">
-                The failure of DPCBF arises because the classical CBF condition certifies safety only under the <span class="hl-blue">assumed obstacle dynamics</span>. Once obstacles are allowed to accelerate or turn, satisfying the nominal barrier condition no longer guarantees that the true barrier dynamics remain safe.
-            </p>
-            <p style="line-height: 1.7;">
-                To address this limitation, we introduce the <strong>Adversarial Control Barrier Function (A-CBF)</strong>, a new validity framework that explicitly accounts for bounded obstacle maneuvers. Instead of certifying safety for a single predicted obstacle trajectory, an A-CBF guarantees that the barrier condition remains valid against <span class="hl-blue">every admissible obstacle maneuver</span> within the capability set $\mathcal{F}$.
-            </p>
-            <p style="line-height: 1.7;">
-                This perspective naturally leads to a <span class="hl-blue">two-player zero-sum differential game</span>. The robot selects a control input to maximize safety, while the obstacle acts as an adversary that chooses the maneuver within $\mathcal{F}$ that minimizes the barrier derivative. An A-CBF is valid only if the robot can satisfy the barrier condition against this <span class="hl-blue">worst-case disturbance</span>, i.e.,
-            </p>
-            <p class="has-text-centered" style="line-height: 2.2;">
-                $$\boxed{\ \color{red}{\min_{\mathbf{d}\in\mathcal{F}} \; \max_{\mathbf{u}\in\mathcal{U}} \; \Big(\dot h(\mathbf{x},\mathbf{u},\mathbf{d}) + \alpha(h)\Big) \ge 0}\ }$$
-            </p>
-            <p style="line-height: 1.7;">
-                Equivalently, for every admissible obstacle maneuver there exists a control input that preserves the barrier condition. AR-DPCBF is then constructed as a <span class="hl-blue">geometry-preserving barrier</span> that satisfies this adversarial validity criterion while retaining the computational efficiency of the original DPCBF.
-            </p>
-        </div>
+<!-- =========================== LIMITS =========================== -->
+<section class="section section-compact" id="limitations">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">What it does not do</h2>
+    <div class="rule"></div>
+    <div class="content is-size-5" style="line-height:1.68">
+      <p>
+        The allocation targets <em>feasibility</em>, not liveness, and the two
+        are in tension. A heuristic split that leaves a local program
+        infeasible lets the robot relax its own share through a slack variable
+        and move without honouring the constraint: it makes progress, and
+        violates the safety distance in five times as many runs. Enforcing a
+        constraint is necessarily more restrictive than enforcing it only when
+        convenient, and the proposed allocation reaches fewer goals
+        (<span class="metric">28.9%</span> against
+        <span class="metric">43.4%</span>) as a result. Deadlock is a known
+        limitation of CBF quadratic-program filters generally; resolving it
+        needs machinery beyond the certificate, which we regard as
+        complementary rather than competing work.
+      </p>
     </div>
+  </div>
 </section>
 
-<!-- PROPOSED ALGORITHM: AR-DPCBF -->
-<section class="section section-compact py-6" id="insight">
-    <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-4">Proposed Algorithm: AR-DPCBF</h2>
-        <div class="content mb-5">
-            <p style="line-height: 1.7;">
-                AR-DPCBF extends DPCBF by explicitly accounting for <span class="hl-blue">bounded obstacle maneuvers</span>. Rather than assuming constant obstacle velocity, each obstacle is modeled as an adversary whose acceleration and turning rate are bounded by the capability set $\mathcal{F} = \{\, |a_{obs}| \le a_{obs,\max},\ |\omega_{obs}| \le \omega_{obs,\max} \,\}$, which is summarized by the scalar capability parameter:
-            </p>
-            <p class="has-text-centered" style="line-height: 2.2;">
-                $$\boxed{\color{red}{\kappa := a_{obs,\max} + v_{obs,\max}\cdot \omega_{obs,\max}}} \qquad [\text{m/s}^2]$$
-            </p>
-            <p style="line-height: 1.7;">
-                The parameter $\kappa$ upper-bounds the obstacle's maneuvering authority and determines the amount by which the nominal DPCBF certificate must be contracted. AR-DPCBF preserves the original parabolic barrier and contracts its parameters according to the <span class="hl-blue">worst-case maneuver</span> permitted by $\kappa$:
-            </p>
-            <p class="has-text-centered" style="line-height: 2.2;">
-                $$\text{DPCBF} \quad \color{red}\boxed{{h \;=\; \tilde v_{rel,x} + \lambda\, \tilde v_{rel,y}^2 + \mu}} \qquad \color{black} \lambda = k_\lambda\dfrac{d}{\|v_{rel}\|}, \qquad \mu = k_\mu d$$
-                $$\text{AR-DPCBF} \quad \color{red}\boxed{{h^* \;=\; \tilde v_{rel,x} + \lambda^*\, \tilde v_{rel,y}^2 + \mu^*}} \qquad \color{black} \lambda^* = \lambda - \dfrac{\kappa}{\gamma a_{\max}\|v_{rel}\|}, \qquad \mu^* = \mu - \dfrac{\kappa d}{\gamma \|v_{rel}\|}$$
-            </p>
-            <p style="line-height: 1.7;">
-                As the admissible obstacle capability $\kappa$ increases, the AR-DPCBF parabola widens, enlarging the adversarial unsafe set $\{h^*<0\}$ and correspondingly shrinking the certified safe set $\{h^* \ge 0\}$. Consequently, <span class="hl-blue">the AR-DPCBF safe set forms a conservative inner approximation of the nominal DPCBF safe set</span>, reserving sufficient safety margin to guarantee validity against all admissible obstacle maneuvers. When $\kappa=0$, the contraction vanishes, the adversarial and nominal safe sets coincide, and AR-DPCBF exactly recovers the original DPCBF.
-            </p>
-        </div>
-
-        <!-- Interactive Visualization Card -->
-        <div class="interactive-card">
-            <div class="level is-mobile mb-2">
-                <div class="level-left"></div>
-                <div class="level-right">
-                    <a href="static/interactive/ar_dpcbf_variation_embed_updated.html" target="_blank" class="button is-light is-small is-rounded">
-                        <span class="icon"><i class="fas fa-expand"></i></span>
-                        <span>Fullscreen</span>
-                    </a>
-                </div>
-            </div>
-
-            <iframe src="static/interactive/ar_dpcbf_variation_embed_updated.html" class="interactive-frame frame-large" scrolling="no" style="overflow: hidden;" loading="lazy"></iframe>
-
-            <p class="figure-caption mt-3">
-                <strong>Interactive AR-DPCBF visualization.</strong> Adjust capability $\kappa$, relative speed $||\tilde{\mathbf v}_{rel}||$, distance $d$, and heading $\theta$ to observe how <span class="hl-blue">bounded maneuverability contracts both safe sets</span>.
-            </p>
-        </div>
-
-        <!-- Three Key Ideas -->
-        <div class="columns is-variable is-4 mt-3">
-            <div class="column">
-                <div class="box insight-box p-5" style="background-color: rgba(129, 216, 208, 0.25);">
-                    <h4 class="title is-5 mb-3"><i class="fas fa-user-shield text-accent mr-1"></i> Bounded Adversary</h4>
-                    <p style="line-height: 1.6;">Obstacles are modeled with <span class="hl-blue">dynamic capabilities</span> bounded by known physical limits instead of constant-velocity assumptions.</p>
-                </div>
-            </div>
-            <div class="column">
-                <div class="box insight-box p-5" style="background-color: rgba(217, 158, 130, 0.25);">
-                    <h4 class="title is-5 mb-3"><i class="fas fa-ruler-combined text-accent mr-1"></i> Analytical Margin</h4>
-                    <p style="line-height: 1.6;">The barrier contracts analytically as maneuverability increases, reserving <span class="hl-blue">exact safety margins</span> for worst-case maneuvers.</p>
-                </div>
-            </div>
-            <div class="column">
-                <div class="box insight-box p-5" style="background-color: rgba(174, 130, 217, 0.25);">
-                    <h4 class="title is-5 mb-3"><i class="fas fa-check-circle text-accent mr-1"></i> Provable Safety</h4>
-                    <p style="line-height: 1.6;">Guarantees remain <span class="hl-blue">formally valid</span> under any obstacle maneuver within physical capability limits.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Controller Variants Table -->
-        <div class="interactive-card mt-4">
-            <div class="level is-mobile mb-2">
-                <div class="level-left"></div>
-                <div class="level-right">
-                    <a href="static/interactive/comparison_table_updated.html" target="_blank" class="button is-light is-small is-rounded">
-                        <span class="icon"><i class="fas fa-expand"></i></span>
-                        <span>Fullscreen</span>
-                    </a>
-                </div>
-            </div>
-
-            <iframe src="static/interactive/comparison_table_updated.html" class="interactive-frame" scrolling="no" style="overflow: hidden;" loading="lazy"></iframe>
-        </div>
-    </div>
-</section>
-
-<!-- EXPERIMENTAL EVALUATION -->
-<section class="section section-compact pt-0">
-    <div class="container is-max-desktop">
-        <video class="teaser-video" autoplay muted loop playsinline preload="auto">
-            <source src="static/videos/allocation_2.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <p class="has-text-centered is-size-5 mt-3">
-            Certificate-optimal responsibility allocation resolves multi-robot CBF infeasibility by redistributing shared safety constraints based on each agent’s available control authority.
-        </p>
-    </div>
-</section>
-
-<!-- ABSTRACT -->
-<section class="section section-compact py-6" id="abstract">
-    <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-3">Abstract</h2>
-        <div class="content abstract-content p-4">
-            <p class="has-text-justified" style="line-height: 1.7;">
-                When a multi-robot CBF filter becomes infeasible, knowing that it failed is not enough—we need to know why and what can be done about it. We develop an exact feasibility certificate that separates the demand imposed by safety constraints from the control authority available to the robots. The certificate quantifies feasibility reserve, reveals structural sources of infeasibility, and identifies the interactions responsible for failure. We then formulate optimal responsibility allocation as a max-min problem that distributes shared safety constraints according to actuator capability. For polyhedral input sets, this reduces to a linear program that maximizes the worst local feasibility margin. Experiments show substantial reductions in infeasible steps and safety violations compared with conventional responsibility allocations, while the proposed certificate accurately localizes the source of infeasibility.
-            </p>
-        </div>
-    </div>
-</section>
-
-<!-- CITATION -->
+<!-- ========================== CITATION ========================== -->
 <section class="section section-compact py-6" id="citation">
-    <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered mb-3">Citation</h2>
-<pre><code>@article{ARDPCBF2026,
-  title   = {Adversarial-Robust Dynamic Parabolic Control Barrier Functions},
-  author  = {Chandan Kumar Sah, Bazeela Banday and Jishnu Keshavan},
-  year    = {2026}
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered mb-3">Citation</h2>
+    <div class="rule"></div>
+<pre><code>@inproceedings{sah2027certificate,
+  title     = {When the Safety Filter Fails: Exact Diagnosis of Infeasibility
+               in Multi-Robot Control Barrier Functions},
+  author    = {Sah, Chandan Kumar and Keshavan, Jishnu},
+  booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+  year      = {2027}
 }</code></pre>
-    </div>
+  </div>
 </section>
 
 <footer class="footer">
-    <div class="content has-text-centered">
-        © 2026 Chandan Kumar Sah
-    </div>
+  <div class="content has-text-centered" style="color:#6b7280">
+    <p>
+      &copy; 2026 Chandan Kumar Sah &middot; Indian Institute of Science.
+      Page template adapted from
+      <a href="https://nerfies.github.io">Nerfies</a>.
+    </p>
+  </div>
 </footer>
 
-<!-- Automatic Iframe Height Resizer Script -->
-<script>
-    function autoResizeIframe(iframe) {
-        try {
-            iframe.style.height = '0px';
-            const doc = iframe.contentWindow.document;
-            const bodyHeight = doc.body.scrollHeight;
-            const htmlHeight = doc.documentElement.scrollHeight;
-            const newHeight = Math.max(bodyHeight, htmlHeight);
-            iframe.style.height = (newHeight + 15) + 'px';
-        } catch (e) {
-            console.warn('Iframe auto-resize fallback active');
-        }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const iframes = document.querySelectorAll('.interactive-frame');
-        iframes.forEach(iframe => {
-            iframe.addEventListener('load', () => autoResizeIframe(iframe));
-            window.addEventListener('resize', () => autoResizeIframe(iframe));
-        });
-    });
-</script>
-
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[
+          {left:'$$',right:'$$',display:true},
+          {left:'\\(',right:'\\)',display:false}]});"></script>
 </body>
 </html>
