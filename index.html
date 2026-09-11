@@ -13,13 +13,14 @@
 <link rel="stylesheet" href="static/css/style.css">
 
 <style>
-  :root{ --red:#d32f2f; --blue:#1565d8; --ink:#111827; --mute:#6b7280; }
+  :root{ --red:#d32f2f; --blue:#1565d8; --green:#2e9e5b;
+         --ink:#111827; --mute:#6b7280; }
 
   body{ background:#fbfbfc }
 
   h2.title.is-3{ color:var(--red); font-weight:750; letter-spacing:-.4px;
                  text-align:center; margin-bottom:.55rem; font-size:2rem }
-  .rule{ width:58px; height:3.5px; background:var(--red); border-radius:3px;
+  .rule{ width:58px; height:3.5px; background:var(--green); border-radius:3px;
          margin:0 auto 1.5rem }
 
   .hl{ color:var(--blue); font-weight:650 }
@@ -45,7 +46,18 @@
   .qcard h3{ font-size:1.1rem; font-weight:750; color:var(--ink);
           margin-bottom:.4rem; line-height:1.28 }
   .qcard p{ font-size:.97rem; color:#4b5563; line-height:1.5; margin:0 }
-  .qcard .ic{ float:right; font-size:1.15rem; opacity:.25 }
+  .qcard .ic{ float:right; font-size:1.15rem; opacity:.32 }
+
+  /* one tint per question */
+  .qcard.c1{ background:#f4f8fe; border-color:#dbe8fa }
+  .qcard.c1 .ic, .qcard.c1 .q{ color:#1565d8 }
+  .qcard.c2{ background:#f2faf6; border-color:#d7eee3 }
+  .qcard.c2 .ic, .qcard.c2 .q{ color:#0f8a5f }
+  .qcard.c3{ background:#fff8f1; border-color:#fae5d0 }
+  .qcard.c3 .ic, .qcard.c3 .q{ color:#d97706 }
+  .qcard.c4{ background:#f9f6fe; border-color:#e7dcfa }
+  .qcard.c4 .ic, .qcard.c4 .q{ color:#7c3aed }
+  .qcard.note{ background:#fffdf6; border-color:#f5e7c2 }
 
   .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
           gap:.9rem; margin:1.8rem 0 .3rem }
@@ -75,6 +87,20 @@
                      0 18px 34px -22px rgba(16,24,40,.25) }
   .narrow{ max-width:760px; margin:0 auto; display:block }
   .figure-caption{ max-width:820px; margin-left:auto; margin-right:auto }
+
+  /* the framing question, in a warm amber panel */
+  .question-callout{ background:linear-gradient(180deg,#fff9ec 0%,#fffdf7 100%);
+        border:1.5px solid #f6dfae; border-left:6px solid #f59e0b;
+        border-radius:14px; padding:1.35rem 1.75rem; max-width:820px;
+        margin:0 auto 2rem;
+        box-shadow:0 2px 4px rgba(180,120,10,.05),
+                   0 16px 30px -20px rgba(180,120,10,.35) }
+  .uppercase-label{ text-transform:uppercase; font-size:.74rem; font-weight:750;
+        letter-spacing:.1em; color:#b45309; margin-bottom:.5rem }
+  .icon-accent{ color:#f59e0b }
+  .callout-question{ color:#92400e !important; font-size:1.22rem !important;
+        font-weight:650 !important; font-style:italic; line-height:1.5 !important;
+        text-align:center; margin:0 !important }
 
   .frame-demo{ height:1200px; border:none; border-radius:10px }
   @media screen and (max-width:850px){ .frame-demo{ height:1520px } }
@@ -136,6 +162,16 @@
     <h2 class="title is-3">Why a flag is not enough</h2>
     <div class="rule"></div>
 
+    <div class="question-callout mb-5">
+      <div class="uppercase-label has-text-centered">
+        <i class="fas fa-circle-question icon-accent"></i>&nbsp; The question
+      </div>
+      <p class="callout-question">
+        A multirobot safety filter returns one bit when it fails.
+        What should the designer actually change?
+      </p>
+    </div>
+
     <div class="columns is-vcentered">
       <div class="column is-6">
         <img src="static/images/fig_motivation.png" class="shot"
@@ -167,7 +203,7 @@
 
     <div class="columns is-multiline">
       <div class="column is-6">
-        <div class="qcard">
+        <div class="qcard c2">
           <i class="fas fa-sliders ic"></i>
           <div class="q">Will tuning the gains help?</div>
           <h3>No. The supply is invariant.</h3>
@@ -176,7 +212,7 @@
         </div>
       </div>
       <div class="column is-6">
-        <div class="qcard">
+        <div class="qcard c1">
           <i class="fas fa-bolt ic"></i>
           <div class="q">Which robots are worth upgrading?</div>
           <h3>The ones with nonzero leverage.</h3>
@@ -186,7 +222,7 @@
         </div>
       </div>
       <div class="column is-6">
-        <div class="qcard">
+        <div class="qcard c3">
           <i class="fas fa-link ic"></i>
           <div class="q">Which interaction causes it?</div>
           <h3>The support of the multiplier.</h3>
@@ -195,7 +231,7 @@
         </div>
       </div>
       <div class="column is-6">
-        <div class="qcard">
+        <div class="qcard c4">
           <i class="fas fa-scale-balanced ic"></i>
           <div class="q">How should the load be shared?</div>
           <h3>By a single linear program.</h3>
@@ -224,8 +260,28 @@
       <div><div class="v">2.3 ms</div><div class="k">per control<br>step</div></div>
     </div>
 
+    <p class="is-size-5 mt-5" style="line-height:1.62;color:#374151;
+              max-width:62ch;margin-left:auto;margin-right:auto">
+      We compare four ways of enforcing the same constraints. A
+      <span class="hl">centralized</span> filter solves one joint program over
+      every input and serves as the reference. The other three are fully
+      decentralized: each robot solves for its own input alone, enforcing only
+      the share of each constraint it is given. They differ only in how that
+      share is chosen.
+    </p>
+
     <img src="static/images/fig9_allocation_illust.png" class="shot mt-5"
          alt="Allocation results">
+    <p class="figure-caption">
+      <strong>(a)</strong> Fraction of control steps at which some robot has no
+      admissible input. The two heuristics degrade steadily as the fleet grows,
+      passing <span class="warn">60%</span> by twelve robots, while ours stays
+      flat near the centralized reference.
+      <strong>(b)</strong> Closest approach over each run. Ours is the only
+      decentralized method whose median stays
+      <span class="hl">above zero</span> at every fleet size.
+      <strong>(c)</strong> Fraction of runs containing a violation, pooled.
+    </p>
 
     <div class="columns is-centered mt-5">
       <div class="column is-9">
@@ -242,6 +298,14 @@
             <tr class="ours"><td>Ours</td><td>6.0%</td><td>23/160</td><td>+0.017</td></tr>
           </tbody>
         </table>
+        <p class="figure-caption" style="text-align:left;margin-top:.9rem">
+          Pooled over heterogeneous fleets of six to twelve robots. Splitting a
+          constraint badly costs roughly
+          <span class="warn">45 percentage points</span> of feasibility against
+          a centralized filter. Choosing the split by the certificate
+          <span class="hl">recovers essentially all of it</span>, and is the
+          only decentralized method that also improves safety.
+        </p>
       </div>
     </div>
   </div>
@@ -323,7 +387,7 @@
     <div class="rule"></div>
     <div class="columns is-centered">
       <div class="column is-9">
-        <div class="qcard">
+        <div class="qcard note">
           <p class="is-size-5" style="line-height:1.6;color:#374151">
             We target <span class="hl">feasibility, not liveness</span>.
             A heuristic split that leaves a program infeasible lets the robot
