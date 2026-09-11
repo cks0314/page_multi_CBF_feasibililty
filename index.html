@@ -14,64 +14,62 @@
 <link rel="stylesheet" href="static/css/style.css">
 
 <style>
-  :root{ --ink:#1f2328; --mute:#6b7280; --line:#e6e8eb;
-         --accent:#1a4f8a; --good:#2e7d4f; --bad:#c0392b; }
-  body{color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif}
-  .publication-title{letter-spacing:-.7px;line-height:1.16}
-  .section-compact{padding:2.6rem 1.5rem}
-  .hero.section-compact{padding-bottom:1rem}
-  h2.title.is-3{letter-spacing:-.3px;margin-bottom:.4rem}
-  .lede{color:var(--mute);text-align:center;max-width:62ch;margin:0 auto 2rem}
-  .rule{width:52px;height:3px;background:var(--accent);border-radius:2px;
-        margin:0 auto 1.4rem}
-  .teaser-video,.frame{width:100%;border-radius:12px;border:1px solid var(--line);
-        box-shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -14px rgba(16,24,40,.16)}
-  .figure-caption{color:var(--mute);font-size:.94rem;line-height:1.6;
-        margin-top:.7rem}
-  .figure-caption strong{color:var(--ink)}
-  .card-soft{background:#fff;border:1px solid var(--line);border-radius:14px;
-        padding:1.5rem;height:100%;
-        box-shadow:0 1px 2px rgba(16,24,40,.04)}
-  .card-soft h3{font-weight:700;font-size:1.04rem;margin-bottom:.45rem;
-        letter-spacing:-.1px}
-  .card-soft .num{display:inline-flex;align-items:center;justify-content:center;
-        width:26px;height:26px;border-radius:8px;background:#eef3f9;
-        color:var(--accent);font-weight:700;font-size:.86rem;margin-right:.5rem}
-  .metric{font-variant-numeric:tabular-nums;font-weight:700}
-  .good{color:var(--good)} .bad{color:var(--bad)}
+  /* additions layered on top of static/css/style.css */
+  .rule{width:54px;height:3px;background:#ff6b00;border-radius:2px;
+        margin:0 auto 1.25rem}
+  .lede{color:#4b5563;text-align:center;max-width:64ch;margin:0 auto 1.6rem;
+        font-size:1.05rem}
+  .answer-box{background:#fff;border:1px solid #e5e7eb;border-radius:14px;
+        padding:1.15rem 1.3rem;height:100%;
+        box-shadow:0 4px 16px rgba(0,0,0,.04);
+        border-top:3px solid #2563eb}
+  .answer-box .q{font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;
+        font-weight:700;color:#9ca3af;margin-bottom:.3rem}
+  .answer-box h3{font-size:1.06rem;font-weight:700;color:#111827;
+        margin-bottom:.45rem;line-height:1.3}
+  .answer-box p{font-size:.96rem;color:#4b5563;line-height:1.55;margin:0}
+  .answer-box.a1{border-top-color:#2563eb}
+  .answer-box.a2{border-top-color:#0d9488}
+  .answer-box.a3{border-top-color:#ea580c}
+  .answer-box.a4{border-top-color:#7c3aed}
   table.tidy{width:100%;border-collapse:collapse;font-size:.95rem}
-  table.tidy th,table.tidy td{padding:.55rem .6rem;text-align:right;
-        border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  table.tidy th,table.tidy td{padding:.5rem .55rem;text-align:right;
+        border-bottom:1px solid #f0f1f3;font-variant-numeric:tabular-nums}
   table.tidy th:first-child,table.tidy td:first-child{text-align:left}
-  table.tidy thead th{font-size:.78rem;text-transform:uppercase;
-        letter-spacing:.6px;color:var(--mute);font-weight:700}
-  table.tidy tr.ours td{background:#f3f8f5;font-weight:650}
-  pre code{font-size:.86rem}
-  .tag.is-info{background:var(--accent)}
-  .interactive-frame{width:100%;border:1px solid var(--line);border-radius:12px}
-  footer.footer{background:#fafbfc;border-top:1px solid var(--line);
-        padding:2rem 1.5rem}
+  table.tidy thead th{font-size:.74rem;text-transform:uppercase;
+        letter-spacing:.06em;color:#9ca3af;font-weight:700}
+  table.tidy tr.ours td{background:#f0f7f3;font-weight:650;color:#166534}
+  .metric{font-variant-numeric:tabular-nums;font-weight:700}
+  .num-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+        gap:1rem;margin:1.6rem 0 .4rem}
+  .num-strip div{text-align:center}
+  .num-strip .v{font-size:1.9rem;font-weight:700;color:#111827;
+        font-variant-numeric:tabular-nums;line-height:1.1}
+  .num-strip .k{font-size:.82rem;color:#6b7280;margin-top:.2rem}
+  .frame-demo{height:1200px}
+  @media screen and (max-width:850px){ .frame-demo{height:1500px} }
 </style>
 </head>
 <body>
 
-<!-- ============================ HERO ============================ -->
+<!-- ============================== HERO ============================== -->
 <section class="hero section-compact">
   <div class="hero-body">
     <div class="container is-max-desktop has-text-centered">
       <span class="tag is-info is-medium is-rounded">Submitted to ICRA 2027</span>
       <br><br>
       <h1 class="title is-1 publication-title">
-        When the Safety Filter Fails: Exact Diagnosis of Infeasibility
-        in Multi-Robot Control Barrier Functions
+        When the Safety Filter Fails:<br>
+        Exact Diagnosis of Infeasibility in Multi-Robot<br>
+        Control Barrier Functions
       </h1>
 
       <div class="is-size-5 publication-authors mt-4">
         <span class="author-block"><strong>Chandan Kumar Sah</strong><sup>1</sup></span>
-        &nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;
         <span class="author-block">Jishnu Keshavan<sup>1</sup></span>
       </div>
-      <div class="is-size-6 publication-authors mt-2" style="color:#6b7280">
+      <div class="is-size-6 publication-authors mt-2">
         <sup>1</sup> Department of Mechanical Engineering, Indian Institute of Science, Bengaluru
       </div>
 
@@ -91,100 +89,121 @@
   </div>
 </section>
 
-<!-- ========================= HERO VIDEO ========================= -->
+<!-- =========================== HERO VIDEO =========================== -->
 <section class="section section-compact pt-0">
   <div class="container is-max-desktop">
     <video class="teaser-video" autoplay muted loop playsinline preload="auto">
       <source src="static/videos/hero.mp4" type="video/mp4">
     </video>
-    <p class="figure-caption has-text-centered">
+    <p class="figure-caption">
       Sixteen underactuated robots. Every pair within sensing range is an
       enforced safety constraint, drawn as an edge coloured by the share
-      <em>&theta;<sub>k,i</sub></em> of that constraint each endpoint is made
+      &theta;<sub>k,i</sub> of that constraint each endpoint is made
       responsible for. A single linear program chooses the division at every
       control step, and no local program is ever infeasible.
     </p>
   </div>
 </section>
 
-<!-- ========================== ABSTRACT ========================== -->
-<section class="section section-compact" id="abstract">
+<!-- ============================ MOTIVATION =========================== -->
+<section class="section section-compact" id="motivation">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Abstract</h2>
+    <h2 class="title is-3 has-text-centered">Why a flag is not enough</h2>
     <div class="rule"></div>
-    <div class="content is-size-5" style="line-height:1.68">
-      <p>
-        Pointwise infeasibility of multi-robot control barrier function (CBF)
-        safety filters offers little guidance on its underlying cause. We
-        derive an <strong>exact conic certificate</strong> whose sign decides
-        feasibility and whose value separates the problem into a
-        <em>demand</em> term, controlled by the barrier encoding, and a
-        <em>supply</em> term, controlled by the geometry of the input sets.
+
+    <div class="question-callout mb-5">
+      <div class="uppercase-label has-text-centered">
+        <i class="fas fa-circle-question icon-accent"></i>&nbsp; The question
+      </div>
+      <p class="callout-question">
+        A multi-robot safety filter returns one bit when it fails.
+        What should the designer actually change?
       </p>
-      <p>
-        Three consequences follow. The supply is <strong>invariant</strong> to
-        the choice of class-<em>K</em> functions, so retuning gains cannot
-        create capability. There exist <strong>structurally degenerate</strong>
-        states at which no increase in actuation restores feasibility. And the
-        certificate's multiplier is <strong>sparse</strong>, naming the few
-        interactions and agents responsible for a conflict.
-      </p>
-      <p>
-        Because the certificate prices any division of a shared constraint
-        exactly, the optimal division is the solution of a single
-        <strong>linear program</strong>, solved centrally and executed locally.
-        Across 320 paired closed-loop runs it reduces infeasible control steps
-        from about 50% for the uniform and capability-weighted heuristics to
-        <span class="metric good">6.0%</span>, matching a centralized filter,
-        and cuts runs containing a safety violation from
-        <span class="metric">118/160</span> to
-        <span class="metric good">23/160</span>, at 2.3&nbsp;ms per step.
-      </p>
+    </div>
+
+    <div class="columns is-vcentered">
+      <div class="column is-6">
+        <img src="static/images/fig_motivation.png" alt="Why a flag is not enough"
+             style="width:100%;border-radius:12px">
+      </div>
+      <div class="column is-6">
+        <div class="content is-size-5">
+          <p>
+            When several barrier constraints compete for the same bounded
+            actuation, the quadratic program can become infeasible. The solver
+            reports <span class="highlight">INFEASIBLE</span> and stops there.
+            It does not say which interaction caused the conflict, which robot
+            would benefit from a stronger actuator, whether retuning the gains
+            would help at all, or how the shared load should have been divided.
+          </p>
+          <p>
+            We derive an <strong>exact conic certificate</strong> whose sign
+            decides feasibility and whose value answers all four questions from
+            a single solve.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ======================= THE THREE QUESTIONS ================== -->
-<section class="section section-compact" id="contributions">
+<!-- ============================= ANSWERS ============================ -->
+<section class="section section-compact" id="answers">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">When the filter says no, what should you change?</h2>
+    <h2 class="title is-3 has-text-centered">Four questions, four answers</h2>
     <div class="rule"></div>
     <p class="lede">
-      A solver failure is a single bit. The certificate turns it into an
-      answer to three separate questions, each with a different remedy.
+      The certificate splits the problem into a <em>demand</em> term, set by
+      the barrier encoding, and a <em>supply</em> term, set by the geometry of
+      the input sets. Each question lands on one side of that split.
     </p>
 
     <div class="columns is-multiline">
-      <div class="column is-4">
-        <div class="card-soft">
-          <h3><span class="num">1</span>Retune the gains?</h3>
+      <div class="column is-6">
+        <div class="answer-box a2">
+          <div class="q">Will tuning the gains help?</div>
+          <h3>No &mdash; the supply is invariant</h3>
           <p>
-            No. The input coefficients of the barrier chain are
-            <strong>independent of every class-<em>K</em> function</strong>,
-            so the supply term cannot be moved by tuning. Exactly one
-            exception exists, through an off-chain penultimate gain.
+            The input coefficients of the barrier chain are independent of
+            every class-<em>K</em> function, so no amount of retuning creates
+            capability. Exactly one exception exists, through an off-chain
+            penultimate gain, and it acts only in advance of a conflict.
           </p>
         </div>
       </div>
-      <div class="column is-4">
-        <div class="card-soft">
-          <h3><span class="num">2</span>Add actuation?</h3>
+      <div class="column is-6">
+        <div class="answer-box a1">
+          <div class="q">Which robots are worth upgrading?</div>
+          <h3>The ones with nonzero leverage</h3>
           <p>
-            Sometimes. We characterize <strong>structurally degenerate</strong>
-            states at which every agent's thrust axis is annihilated by the
-            constraint it carries; there, scaling the input sets by any factor
-            leaves the certificate unchanged.
+            The certificate's multiplier gives each robot's marginal value of
+            actuation, &part;M/&part;&rho;<sub>i</sub>. It is <em>exactly</em>
+            zero for most robots: their thrust axis is annihilated by the
+            constraint they carry, and a tenfold upgrade changes nothing.
           </p>
         </div>
       </div>
-      <div class="column is-4">
-        <div class="card-soft">
-          <h3><span class="num">3</span>Divide it differently?</h3>
+      <div class="column is-6">
+        <div class="answer-box a3">
+          <div class="q">Which interaction causes the conflict?</div>
+          <h3>The support of the multiplier</h3>
           <p>
-            Usually, and cheaply. The certificate prices any division exactly,
-            so the best one is a <strong>linear program</strong>. It changes
-            neither the constraint nor the fleet's capability, only whether the
-            local programs can use it.
+            The optimal multiplier is sparse, naming a handful of pairs
+            regardless of fleet size. Relaxing the pair it names restores
+            feasibility in <span class="metric">94%</span> of observed
+            conflicts, against 4&ndash;6% for the usual heuristics.
+          </p>
+        </div>
+      </div>
+      <div class="column is-6">
+        <div class="answer-box a4">
+          <div class="q">How should the load be shared?</div>
+          <h3>By a single linear program</h3>
+          <p>
+            Because the certificate prices any division of a shared constraint
+            exactly, the optimal division solves one linear program &mdash;
+            computed centrally on the joint state, then broadcast so each robot
+            filters its own input locally, in parallel.
           </p>
         </div>
       </div>
@@ -192,33 +211,53 @@
   </div>
 </section>
 
-<!-- ========================= THE MECHANISM ====================== -->
+<!-- ============================ MECHANISM =========================== -->
 <section class="section section-compact" id="mechanism">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">What the allocation does, and what it cannot</h2>
+    <h2 class="title is-3 has-text-centered">What the allocation changes &mdash; and what it cannot</h2>
     <div class="rule"></div>
+<<<<<<< HEAD
+    <img src="static/images/fig10_allocmech_comb.png" class="result-figure"
+         alt="Allocation mechanism">
+    <p class="figure-caption" style="max-width:860px;margin-left:auto;margin-right:auto">
+=======
     <img src="static/images/fig10_allocmech_comb.pdf" class="frame" alt="Allocation mechanism">
     <p class="figure-caption">
+>>>>>>> 2194596a8489b28397eb9e6be06ed02588d45471
       <strong>One conflict, three allocations, one state.</strong>
       <em>Left:</em> each robot's local margin. Three robots have no admissible
       input under the uniform split and two under the capability-weighted
       split; the linear program lifts the worst margin above zero, and five of
-      eight robots end up at exactly that optimum &mdash; the signature of a
-      max&ndash;min solution. <em>Middle:</em> the capability leverage
-      &part;M/&part;&rho;<sub>i</sub> is <em>identical</em> under all three
-      allocations, because the joint certificate does not depend on the
-      division. <em>Right:</em> what does change it &mdash; raising one robot's
-      actuation moves the reserve at exactly the predicted rate, while a 50%
-      increase for a robot of zero leverage leaves it untouched.
+      eight robots settle at exactly that optimum &mdash; the signature of a
+      max&ndash;min solution. <em>Right:</em> the leverage
+      &part;M/&part;&rho;<sub>i</sub> is <span class="text-accent"><strong>identical
+      under all three allocations</strong></span>, because the joint certificate
+      does not depend on the division. The allocation changes neither the
+      fleet's capability nor which robot holds it &mdash; only whether the
+      local programs can use it.
     </p>
   </div>
 </section>
 
-<!-- ========================== ATTRIBUTION ======================= -->
+<!-- =========================== ATTRIBUTION ========================== -->
 <section class="section section-compact" id="attribution">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Which interaction is to blame?</h2>
+    <h2 class="title is-3 has-text-centered">Localising the conflict</h2>
     <div class="rule"></div>
+<<<<<<< HEAD
+    <img src="static/images/fig8_attribution_illust2.png" class="result-gif"
+         alt="Conflict attribution">
+    <p class="figure-caption" style="max-width:920px;margin-left:auto;margin-right:auto">
+      <strong>(a)</strong> A ten-robot conflict with 24 enforced pairs: the dual
+      support is a <em>single</em> pair, and only its two endpoints carry any
+      leverage. <strong>(b)</strong> That leverage per robot &mdash; eight of
+      ten are exactly zero. <strong>(c)</strong> Over 52 closed-loop conflicts,
+      relaxing the pair the certificate names restores feasibility in
+      <span class="metric">94%</span> of cases, against 4&ndash;6% for the
+      closest pair, the smallest barrier value, the smallest &psi;, or chance.
+      <strong>(d)</strong> The blame does not grow with the fleet: the support
+      averages 1.4 pairs from six robots to sixteen.
+=======
     <img src="static/images/fig8_attribution_illust2.pdf" class="frame" alt="Conflict attribution">
     <p class="figure-caption">
       <strong>The multiplier is sparse, and it names the conflict.</strong>
@@ -229,11 +268,12 @@
       against 4&ndash;6% for the closest pair, the smallest barrier value, the
       smallest &psi;, or chance. The blame does not grow with the fleet: the
       support averages 1.4 pairs from six robots to sixteen.
+>>>>>>> 2194596a8489b28397eb9e6be06ed02588d45471
     </p>
   </div>
 </section>
 
-<!-- ============================ RESULTS ========================= -->
+<!-- ============================= RESULTS ============================ -->
 <section class="section section-compact" id="results">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Closed-loop evaluation</h2>
@@ -243,37 +283,44 @@
       40 random tasks at each fleet size, with only the allocation differing.
     </p>
 
-    <div class="columns is-vcentered">
-      <div class="column is-7">
-        <img src="static/images/fig9_allocation.png" class="frame" alt="Allocation results">
-      </div>
-      <div class="column is-5">
+    <img src="static/images/fig9_allocation_illust.png" class="result-gif"
+         alt="Allocation results">
+    <p class="figure-caption" style="max-width:920px;margin-left:auto;margin-right:auto">
+      Boxes show the median and interquartile range over tasks; error bars in
+      (c) are 95% Wilson intervals. The two heuristics degrade steadily with
+      fleet size while the proposed allocation tracks the centralized
+      reference.
+    </p>
+
+    <div class="columns is-centered mt-5">
+      <div class="column is-8">
         <table class="tidy">
           <thead>
-            <tr><th>Allocation</th><th>Infeasible steps</th><th>Unsafe runs</th></tr>
+            <tr><th>Allocation</th><th>Infeasible steps</th>
+                <th>Unsafe runs</th><th>Closest approach</th></tr>
           </thead>
           <tbody>
-            <tr><td>Centralized <span style="color:#6b7280">(reference)</span></td>
-                <td>5.4%</td><td>59/160</td></tr>
-            <tr><td>Uniform split</td><td>50.8%</td><td>118/160</td></tr>
-            <tr><td>Capability-weighted</td><td>49.6%</td><td>123/160</td></tr>
-            <tr class="ours"><td>Certificate-optimal</td>
-                <td class="good">6.0%</td><td class="good">23/160</td></tr>
+            <tr><td>Centralized <span style="color:#9ca3af">(reference)</span></td>
+                <td>5.4%</td><td>59/160</td><td>+0.001</td></tr>
+            <tr><td>Uniform split</td><td>50.8%</td><td>118/160</td><td>&minus;0.044</td></tr>
+            <tr><td>Capability-weighted</td><td>49.6%</td><td>123/160</td><td>&minus;0.038</td></tr>
+            <tr class="ours"><td>Certificate-optimal (ours)</td>
+                <td>6.0%</td><td>23/160</td><td>+0.017</td></tr>
           </tbody>
         </table>
-        <p class="figure-caption">
-          Heterogeneous fleets, pooled over four fleet sizes. The proposed
-          allocation recovers the entire penalty of decentralizing the
-          constraint and is statistically indistinguishable from a centralized
-          filter, while the two heuristics retain more than forty percentage
-          points of it.
-        </p>
       </div>
+    </div>
+
+    <div class="num-strip">
+      <div><div class="v">6.0%</div><div class="k">infeasible control steps</div></div>
+      <div><div class="v">8&times;</div><div class="k">fewer unsafe runs than uniform</div></div>
+      <div><div class="v">94%</div><div class="k">conflicts correctly localised</div></div>
+      <div><div class="v">2.3 ms</div><div class="k">per control step</div></div>
     </div>
   </div>
 </section>
 
-<!-- ======================= SIDE-BY-SIDE RUN ===================== -->
+<!-- ========================== SIDE-BY-SIDE ========================== -->
 <section class="section section-compact" id="story">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">The same task, three ways</h2>
@@ -285,60 +332,100 @@
       Identical initial conditions, goals and actuation bounds; only the
       division of each shared constraint differs. The uniform and
       capability-weighted splits leave some local program infeasible on
-      <span class="metric bad">45%</span> and
-      <span class="metric bad">32%</span> of steps and both fleets stall; the
-      certificate-optimal split does so on
-      <span class="metric good">0.3%</span> and keeps the worst local margin
-      positive throughout.
+      <span class="highlight">45%</span> and <span class="highlight">32%</span>
+      of steps and both fleets stall; the certificate-optimal split does so on
+      <strong>0.3%</strong> and holds the worst local margin positive
+      throughout.
     </p>
   </div>
 </section>
 
-<!-- ========================= INTERACTIVE ======================== -->
+<!-- ============================ INTERACTIVE ========================= -->
 <section class="section section-compact" id="demo">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Try the certificate yourself</h2>
     <div class="rule"></div>
     <p class="lede">
-      Drag the robots, their velocities and their body axes. The conic
+      Drag the robots, their velocity arrows and their body axes. The conic
       certificate, the allocation linear program and every local margin are
       solved live in your browser. Switch between the uniform split and the
       certificate-optimal one to watch infeasible robots turn feasible with
       nothing else changed.
     </p>
-    <iframe src="static/interactive/demo.html" class="interactive-frame"
-            style="height:1180px" loading="lazy" title="Interactive certificate"></iframe>
-  </div>
-</section>
-
-<!-- =========================== LIMITS =========================== -->
-<section class="section section-compact" id="limitations">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">What it does not do</h2>
-    <div class="rule"></div>
-    <div class="content is-size-5" style="line-height:1.68">
-      <p>
-        The allocation targets <em>feasibility</em>, not liveness, and the two
-        are in tension. A heuristic split that leaves a local program
-        infeasible lets the robot relax its own share through a slack variable
-        and move without honouring the constraint: it makes progress, and
-        violates the safety distance in five times as many runs. Enforcing a
-        constraint is necessarily more restrictive than enforcing it only when
-        convenient, and the proposed allocation reaches fewer goals
-        (<span class="metric">28.9%</span> against
-        <span class="metric">43.4%</span>) as a result. Deadlock is a known
-        limitation of CBF quadratic-program filters generally; resolving it
-        needs machinery beyond the certificate, which we regard as
-        complementary rather than competing work.
-      </p>
+    <div class="interactive-card">
+      <iframe src="static/interactive/demo.html"
+              class="interactive-frame frame-demo"
+              loading="lazy" title="Interactive certificate"></iframe>
     </div>
   </div>
 </section>
 
-<!-- ========================== CITATION ========================== -->
+<!-- ============================ LIMITATIONS ========================= -->
+<section class="section section-compact" id="limitations">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">What it does not do</h2>
+    <div class="rule"></div>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <div class="box insight-box">
+          <p class="is-size-5" style="line-height:1.65;margin:0">
+            The allocation targets <strong>feasibility</strong>, not liveness,
+            and the two are in tension. A heuristic split that leaves a local
+            program infeasible lets the robot relax its own share through a
+            slack variable and move without honouring the constraint: it makes
+            progress, and violates the safety distance in five times as many
+            runs. Enforcing a constraint is necessarily more restrictive than
+            enforcing it only when convenient, and the proposed allocation
+            reaches fewer goals (<span class="metric">28.9%</span> against
+            <span class="metric">43.4%</span>) as a result. Deadlock is a known
+            limitation of CBF quadratic-program filters generally; resolving it
+            needs machinery beyond the certificate, which we regard as
+            complementary rather than competing work.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= ABSTRACT =========================== -->
+<section class="section section-compact" id="abstract">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Abstract</h2>
+    <div class="rule"></div>
+    <div class="columns is-centered">
+      <div class="column is-10">
+        <div class="content is-size-5" style="line-height:1.68">
+          <p>
+            Pointwise infeasibility of multi-robot control barrier function
+            safety filters offers little guidance on its underlying cause. We
+            derive an exact conic certificate whose sign decides feasibility
+            and whose value separates the problem into a demand term,
+            controlled by the barrier encoding, and a supply term, controlled
+            by the geometry of the input sets. The supply is invariant to the
+            choice of class-<em>K</em> functions, so retuning gains cannot
+            create capability; there exist structurally degenerate states at
+            which no increase in actuation restores feasibility; and the
+            certificate's multiplier is sparse, naming the few interactions and
+            agents responsible for a conflict. Because the certificate prices
+            any division of a shared constraint exactly, the optimal division
+            is the solution of a single linear program, solved centrally and
+            executed locally. Across 320 paired closed-loop runs it reduces
+            infeasible control steps from about 50% for the uniform and
+            capability-weighted heuristics to 6.0%, matching a centralized
+            filter, and cuts runs containing a safety violation from 118/160 to
+            23/160, at 2.3 ms per step.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= CITATION =========================== -->
 <section class="section section-compact py-6" id="citation">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered mb-3">Citation</h2>
+    <h2 class="title is-3 has-text-centered">Citation</h2>
     <div class="rule"></div>
 <pre><code>@inproceedings{sah2027certificate,
   title     = {When the Safety Filter Fails: Exact Diagnosis of Infeasibility
@@ -351,11 +438,10 @@
 </section>
 
 <footer class="footer">
-  <div class="content has-text-centered" style="color:#6b7280">
+  <div class="content has-text-centered">
     <p>
       &copy; 2026 Chandan Kumar Sah &middot; Indian Institute of Science.
-      Page template adapted from
-      <a href="https://nerfies.github.io">Nerfies</a>.
+      Template adapted from <a href="https://nerfies.github.io">Nerfies</a>.
     </p>
   </div>
 </footer>
